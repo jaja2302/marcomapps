@@ -18,6 +18,7 @@ use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use App\Filament\Pages\Settings;
+use App\Filament\Widgets\Inputdataform;
 use App\Filament\Widgets\Tracksampel;
 
 class AdminPanelProvider extends PanelProvider
@@ -36,11 +37,12 @@ class AdminPanelProvider extends PanelProvider
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->discoverClusters(in: app_path('Filament/Clusters'), for: 'App\\Filament\\Clusters')
             // ->pages([
-            //     Pages\Dashboard::class,
+            // Pages\Dashboard::class,
             //     Settings::class
             // ])
             ->widgets([
                 Tracksampel::class,
+                Inputdataform::class
             ])
             ->middleware([
                 EncryptCookies::class,

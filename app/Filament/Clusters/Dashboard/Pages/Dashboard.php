@@ -8,6 +8,9 @@ use App\Filament\Widgets\Tracksampel;
 
 class Dashboard extends Page
 {
+    protected static string $routePath = '/';
+
+    protected static ?int $navigationSort = -2;
     protected static ?string $navigationIcon = 'heroicon-o-home';
 
     protected static string $view = 'filament.clusters.dashboard.pages.dashboard';
