@@ -17,9 +17,11 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use App\Filament\Pages\Settings;
 use App\Filament\Widgets\Inputdataform;
 use App\Filament\Widgets\Tracksampel;
+use App\Filament\Pages\Testing;
+use App\Filament\Pages\Testing2;
+use Filament\Navigation\NavigationGroup;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -39,6 +41,7 @@ class AdminPanelProvider extends PanelProvider
                 'success' => Color::Emerald,
                 'warning' => Color::Orange,
             ])
+            ->collapsibleNavigationGroups(true)
             ->brandLogo(asset('images/CBI-logo.png'))
             ->brandLogoHeight('4rem')
             ->favicon(asset('images/CBI-logo.png'))
@@ -46,10 +49,11 @@ class AdminPanelProvider extends PanelProvider
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->discoverClusters(in: app_path('Filament/Clusters'), for: 'App\\Filament\\Clusters')
-            // ->pages([
-            // Pages\Dashboard::class,
-            //     Settings::class
-            // ])
+            ->pages([
+                // Pages\Dashboard::class,
+                // Testing::class,
+                // Testing2::class,
+            ])
             ->widgets([
                 Tracksampel::class,
                 Inputdataform::class
