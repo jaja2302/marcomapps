@@ -13,7 +13,9 @@ class ListDatabases extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make()->label('Tambah Invoice'),
+            Actions\CreateAction::make()
+                ->label('Tambah Invoice')
+                ->createAnother(true),
         ];
     }
 }
