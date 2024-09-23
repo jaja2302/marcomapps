@@ -211,3 +211,30 @@ if (!function_exists('numberformat_excel')) {
         return $number;
     }
 }
+if (!function_exists('encryptInt')) {
+    function encryptInt($integer, $key, $iv)
+    {
+        $data = strval($integer); // Convert integer to string
+        $encrypted = openssl_encrypt($data, 'AES-128-CBC', $key, 0, $iv);
+        return $encrypted;
+    }
+}
+
+if (!function_exists('decryptInt')) {
+    function decryptInt($encrypted, $key, $iv)
+    {
+        $decrypted = openssl_decrypt($encrypted, 'AES-128-CBC', $key, 0, $iv);
+        return intval($decrypted); // Convert back to integer
+    }
+}
+// $integer = 6;
+// $key = 'yoursecretkey123'; // 16 characters key for AES-128
+// $iv = '1234567891011121';  // Initialization vector (16 bytes for AES-128)
+
+// // Encrypt the integer
+// $encrypted = encryptInt($integer, $key, $iv);
+// echo "Encrypted: " . $encrypted . "\n";
+
+// // Decrypt it back to the original integer
+// $decrypted = decryptInt($encrypted, $key, $iv);
+// echo "Decrypted: " . $decrypted . "\n";

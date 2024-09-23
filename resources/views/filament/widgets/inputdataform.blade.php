@@ -11,4 +11,11 @@
             </div>
         </form>
     </x-filament::section>
+    <script>
+        document.addEventListener('livewire:init', () => {
+            Livewire.on('refresh-form', () => {
+                window.location.reload();
+            });
+        });
+    </script>
 </x-filament-widgets::widget>
