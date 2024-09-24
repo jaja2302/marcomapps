@@ -303,6 +303,7 @@ if (!function_exists('form_invoice')) {
                     Textarea::make('email_perusahaan')->placeholder('Dapat dikosongkan tidak perlu diisi'),
                     Textarea::make('npwp_perusahaan')->placeholder('Dapat dikosongkan tidak perlu diisi'),
                     Textarea::make('no_kontrak_perusahaan')->placeholder('Dapat dikosongkan tidak perlu diisi'),
+                    Textarea::make('status_pajak')->placeholder('Dapat dikosongkan tidak perlu diisi'),
                 ])
 
                 ->createOptionUsing(function (array $data): Model {
@@ -315,6 +316,7 @@ if (!function_exists('form_invoice')) {
                         'email_perusahaan' => $data['email_perusahaan'],
                         'npwp_perusahaan' => $data['npwp_perusahaan'],
                         'no_kontrak_perusahaan' => $data['no_kontrak_perusahaan'],
+                        'status_pajak' => $data['status_pajak'],
                     ]);
 
 
@@ -340,6 +342,7 @@ if (!function_exists('form_invoice')) {
                     Textarea::make('email_perusahaan')->placeholder('Dapat dikosongkan tidak perlu diisi'),
                     Textarea::make('npwp_perusahaan')->placeholder('Dapat dikosongkan tidak perlu diisi'),
                     Textarea::make('no_kontrak_perusahaan')->placeholder('Dapat dikosongkan tidak perlu diisi'),
+                    Textarea::make('status_pajak')->placeholder('Dapat dikosongkan tidak perlu diisi'),
                 ])
                 ->updateOptionUsing(function (array $data): ?Model {
                     // dd($data);
@@ -352,6 +355,7 @@ if (!function_exists('form_invoice')) {
                         'email_perusahaan' => $data['email_perusahaan'],
                         'npwp_perusahaan' => $data['npwp_perusahaan'],
                         'no_kontrak_perusahaan' => $data['no_kontrak_perusahaan'],
+                        'status_pajak' => $data['status_pajak'],
                     ]);
 
                     Notification::make()
@@ -370,6 +374,7 @@ if (!function_exists('form_invoice')) {
                     $set('email_perusahaan', $data->email_perusahaan  ?? '');
                     $set('npwp_perusahaan', $data->npwp_perusahaan  ?? '');
                     $set('no_kontrak_perusahaan', $data->no_kontrak_perusahaan  ?? '');
+                    $set('status_pajak', $data->status_pajak  ?? '');
                 }),
             TextInput::make('nama_pelanggan')->readOnly()->placeholder('Otomatis dari sistem'),
             TextInput::make('alamat_pelanggan')->readOnly()->placeholder('Otomatis dari sistem'),
@@ -377,6 +382,7 @@ if (!function_exists('form_invoice')) {
             TextInput::make('email_perusahaan')->readOnly()->placeholder('Otomatis dari sistem'),
             TextInput::make('npwp_perusahaan')->readOnly()->placeholder('Otomatis dari sistem'),
             TextInput::make('no_kontrak_perusahaan')->readOnly()->placeholder('Otomatis dari sistem'),
+            TextInput::make('status_pajak')->readOnly()->placeholder('Otomatis dari sistem'),
             TextInput::make('no_group')->required(),
             TextInput::make('no_sertifikat')->required(),
             DatePicker::make('tanggal_sertifikat')->required()->format('d/m/Y')->default(now()),
@@ -384,6 +390,7 @@ if (!function_exists('form_invoice')) {
             DatePicker::make('tanggal_penerbitan_invoice')->required()->format('d/m/Y')->default(now()),
             DatePicker::make('tanggal_pengiriman_invoice')->required()->format('d/m/Y')->default(now()),
             DatePicker::make('tanggal_pembayaran')->required()->format('d/m/Y')->default(now()),
+            DatePicker::make('tanggal_kontrak')->required()->format('d/m/Y')->default(now()),
             FileUpload::make('faktur_pajak')
                 ->directory('penerbitan_invoice')
                 ->openable()

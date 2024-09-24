@@ -38,6 +38,7 @@ class CreateDatabase extends CreateRecord
                 'status_pembayaran' => $data['pembayaran'],
                 'tanggal_pembayaran' => Carbon::createFromFormat('d/m/Y', $data['tanggal_pembayaran'])->format('Y-m-d H:i:s'),
                 'faktur_pajak' => $data['faktur_pajak'],
+                'tanggal_kontrak' => Carbon::createFromFormat('d/m/Y', $data['tanggal_kontrak'])->format('Y-m-d H:i:s'),
                 'e_materai' => isset($data['e_materai']) ? $data['e_materai'] : null,
                 'e_materai_status' => isset($data['e_matare_status']) ? ($data['e_matare_status'] ? 1 : 0) : 0,
                 'resi_pengiriman' => $this->generateResiPengiriman(),

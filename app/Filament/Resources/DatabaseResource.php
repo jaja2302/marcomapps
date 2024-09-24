@@ -199,6 +199,7 @@ class DatabaseResource extends Resource
                             // dd($resi_data);
                             $data['nama_perusahaan'] = $data['perusahaan_id'];
                             $data['nama_pelanggan'] = $perusahaan->nama;
+                            $data['status_pajak'] = $perusahaan->status_pajak;
                             $data['alamat_pelanggan'] = $perusahaan->alamat_pelanggan;
                             $data['no_telp_perusahaan'] = $perusahaan->no_telp_perusahaan;
                             $data['email_perusahaan'] = $perusahaan->email_perusahaan;
@@ -224,6 +225,7 @@ class DatabaseResource extends Resource
                                     'tanggal_penerbitan_invoice' => Carbon::createFromFormat('d/m/Y', $data['tanggal_penerbitan_invoice'])->format('Y-m-d H:i:s'),
                                     'tanggal_pengiriman_invoice' => Carbon::createFromFormat('d/m/Y', $data['tanggal_pengiriman_invoice'])->format('Y-m-d H:i:s'),
                                     'status_pembayaran' => $data['pembayaran'],
+                                    'tanggal_kontrak' => Carbon::createFromFormat('d/m/Y', $data['tanggal_kontrak'])->format('Y-m-d H:i:s'),
                                     'tanggal_pembayaran' => Carbon::createFromFormat('d/m/Y', $data['tanggal_pembayaran'])->format('Y-m-d H:i:s'),
                                     'faktur_pajak' => $data['faktur_pajak'] ?? null,
                                     'e_materai' => $data['e_materai'] ?? null,
