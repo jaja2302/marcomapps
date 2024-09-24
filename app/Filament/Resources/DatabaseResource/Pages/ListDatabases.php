@@ -12,10 +12,12 @@ class ListDatabases extends ListRecords
 
     protected function getHeaderActions(): array
     {
+        // dd(can_edit_invoice());
         return [
             Actions\CreateAction::make()
                 ->label('Tambah Invoice')
-                ->createAnother(true),
+                ->visible(can_edit_invoice())
+                ->createAnother(false),
         ];
     }
 }

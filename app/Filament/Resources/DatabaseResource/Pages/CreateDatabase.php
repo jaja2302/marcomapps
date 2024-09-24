@@ -26,7 +26,7 @@ class CreateDatabase extends CreateRecord
             // Create new Databaseinvoice instance
 
 
-            // dd($test);
+            // dd($data);
             $query = Databaseinvoice::create([
                 'perusahaan_id' => $data['nama_perusahaan'],
                 'no_group' => $data['no_group'],
@@ -38,7 +38,6 @@ class CreateDatabase extends CreateRecord
                 'status_pembayaran' => $data['pembayaran'],
                 'tanggal_pembayaran' => Carbon::createFromFormat('d/m/Y', $data['tanggal_pembayaran'])->format('Y-m-d H:i:s'),
                 'faktur_pajak' => $data['faktur_pajak'],
-                'discount_percentage' => $data['discount_percentage'],
                 'e_materai' => isset($data['e_materai']) ? $data['e_materai'] : null,
                 'e_materai_status' => isset($data['e_matare_status']) ? ($data['e_matare_status'] ? 1 : 0) : 0,
                 'resi_pengiriman' => $this->generateResiPengiriman(),
@@ -49,9 +48,27 @@ class CreateDatabase extends CreateRecord
             Detailresi::create([
                 'resi_id' => $query->resi_pengiriman,
                 'data' => json_encode($data['letterDetails']),
+                'discount' => $data['discount_percentage'],
+                'total_harga' => $data['totalharga'],
+                'totalharga_disc' => $data['totalharga_disc'],
             ]);
             return $query; // Return the created model
         });
+    }
+
+    protected function beforeCreate(): void
+    {
+        // dd(auth()->user()->id_jabatan);
+        if (!can_edit_invoice()) {
+            Notification::make()
+                ->warning()
+                ->title('Akses Ditolak')
+                ->body('Anda tidak memiliki akses untuk mengakses halaman ini')
+                ->persistent()
+                ->send();
+
+            $this->halt();
+        }
     }
 
     private function generateResiPengiriman(): string

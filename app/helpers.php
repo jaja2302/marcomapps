@@ -1,5 +1,25 @@
 <?php
 
+use App\Models\JenisSampel;
+use App\Models\ParameterAnalisis;
+use App\Models\Perusahaan;
+use Filament\Forms;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Form;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
+use Filament\Notifications\Notification;
+use Illuminate\Database\Eloquent\Model;
+use Filament\Notifications\Actions\Action as Notifaction;
+
 if (!function_exists('tanggal_indo')) {
     function tanggal_indo($tanggal, $cetak_hari = false, $cetak_bulan = false, $cetak_tanggal = false)
     {
@@ -225,6 +245,280 @@ if (!function_exists('decryptInt')) {
     {
         $decrypted = openssl_decrypt($encrypted, 'AES-128-CBC', $key, 0, $iv);
         return intval($decrypted); // Convert back to integer
+    }
+}
+class InvoiceHelper
+{
+    public static function updateTotalharga(Get $get, Set $set): void
+    {
+        $total = 0;
+        $letterDetails = $get('letterDetails') ?? [];
+
+        foreach ($letterDetails as $letter) {
+            $locationDetails = $letter['locationDetails'] ?? [];
+            foreach ($locationDetails as $location) {
+                $parameterDetails = $location['parameterDetails'] ?? [];
+                foreach ($parameterDetails as $parameter) {
+                    $total += $parameter['subtotal'] ?? 0;
+                }
+            }
+        }
+        $total_disc = $total;
+        $discountPercentage = $get('discount_percentage');
+        if ($discountPercentage != null) {
+            $total_disc = $total - ($total * ($discountPercentage / 100));
+        }
+
+        // Set updated values
+        $set('totalharga_disc', $total_disc);
+        $set('totalharga', $total);
+    }
+
+    public static function updateTotals(Get $get, Set $set): void
+    {
+        $selectedProducts = $get('sampleCount');
+        $harga = $get('totalPrice');
+        $subtotal = $harga * $selectedProducts;
+
+        // Update the state with the new values
+        $set('subtotal', $subtotal);
+    }
+}
+if (!function_exists('form_invoice')) {
+    function form_invoice()
+    {
+
+        return [
+            Select::make('nama_perusahaan')
+                ->label('Nama Perusahaan')
+                ->required()
+                ->live()
+                ->searchable()
+                ->relationship(name: 'perusahaan', titleAttribute: 'nama')
+                ->createOptionForm([
+                    TextInput::make('nama')->required()->placeholder('Wajib diisi'),
+                    TextInput::make('nama_pelanggan')->required()->placeholder('Wajib diisi'),
+                    Textarea::make('alamat_pelanggan')->placeholder('Dapat dikosongkan tidak perlu diisi'),
+                    Textarea::make('no_telp_perusahaan')->placeholder('Dapat dikosongkan tidak perlu diisi'),
+                    Textarea::make('email_perusahaan')->placeholder('Dapat dikosongkan tidak perlu diisi'),
+                    Textarea::make('npwp_perusahaan')->placeholder('Dapat dikosongkan tidak perlu diisi'),
+                    Textarea::make('no_kontrak_perusahaan')->placeholder('Dapat dikosongkan tidak perlu diisi'),
+                ])
+
+                ->createOptionUsing(function (array $data): Model {
+                    // dd('added');
+                    $perusahaan = Perusahaan::create([
+                        'nama' => $data['nama'],
+                        'nama_pelanggan' => $data['nama_pelanggan'],
+                        'alamat_pelanggan' => $data['alamat_pelanggan'],
+                        'no_telp_perusahaan' => $data['no_telp_perusahaan'],
+                        'email_perusahaan' => $data['email_perusahaan'],
+                        'npwp_perusahaan' => $data['npwp_perusahaan'],
+                        'no_kontrak_perusahaan' => $data['no_kontrak_perusahaan'],
+                    ]);
+
+
+                    Notification::make()
+                        ->title('Saved successfully')
+                        ->success()
+                        ->body('Harap klik tombol refresh untuk melihat data baru ditambahkan')
+                        ->actions([
+                            Notifaction::make('refresh')
+                                ->button()
+                                ->url('/admin/databases/create'), // Change this line to a string URL
+                        ])
+                        ->persistent()
+                        ->send();
+                    return $perusahaan;
+                })
+                ->editOptionForm([
+                    TextInput::make('id')->label('uuid')->readOnly(),
+                    TextInput::make('nama')->required()->placeholder('Wajib diisi'),
+                    TextInput::make('nama_pelanggan')->required()->placeholder('Wajib diisi'),
+                    Textarea::make('alamat_pelanggan')->placeholder('Dapat dikosongkan tidak perlu diisi'),
+                    Textarea::make('no_telp_perusahaan')->placeholder('Dapat dikosongkan tidak perlu diisi'),
+                    Textarea::make('email_perusahaan')->placeholder('Dapat dikosongkan tidak perlu diisi'),
+                    Textarea::make('npwp_perusahaan')->placeholder('Dapat dikosongkan tidak perlu diisi'),
+                    Textarea::make('no_kontrak_perusahaan')->placeholder('Dapat dikosongkan tidak perlu diisi'),
+                ])
+                ->updateOptionUsing(function (array $data): ?Model {
+                    // dd($data);
+                    $record = Perusahaan::find($data['id']);
+                    $record->update([
+                        'nama' => $data['nama'],
+                        'nama_pelanggan' => $data['nama_pelanggan'],
+                        'alamat_pelanggan' => $data['alamat_pelanggan'],
+                        'no_telp_perusahaan' => $data['no_telp_perusahaan'],
+                        'email_perusahaan' => $data['email_perusahaan'],
+                        'npwp_perusahaan' => $data['npwp_perusahaan'],
+                        'no_kontrak_perusahaan' => $data['no_kontrak_perusahaan'],
+                    ]);
+
+                    Notification::make()
+                        ->title('Data berhasil diperbarui')
+                        ->success()
+                        ->send();
+
+                    return $record;
+                })
+                ->options(Perusahaan::query()->pluck('nama', 'id')->toArray())
+                ->afterStateUpdated(function ($state, Set $set) {
+                    $data = Perusahaan::where('id', $state)->first();
+                    $set('nama_pelanggan', $data->nama_pelanggan ?? '');
+                    $set('alamat_pelanggan', $data->alamat_pelanggan  ?? '');
+                    $set('no_telp_perusahaan', $data->no_telp_perusahaan ?? '');
+                    $set('email_perusahaan', $data->email_perusahaan  ?? '');
+                    $set('npwp_perusahaan', $data->npwp_perusahaan  ?? '');
+                    $set('no_kontrak_perusahaan', $data->no_kontrak_perusahaan  ?? '');
+                }),
+            TextInput::make('nama_pelanggan')->readOnly()->placeholder('Otomatis dari sistem'),
+            TextInput::make('alamat_pelanggan')->readOnly()->placeholder('Otomatis dari sistem'),
+            TextInput::make('no_telp_perusahaan')->readOnly()->placeholder('Otomatis dari sistem'),
+            TextInput::make('email_perusahaan')->readOnly()->placeholder('Otomatis dari sistem'),
+            TextInput::make('npwp_perusahaan')->readOnly()->placeholder('Otomatis dari sistem'),
+            TextInput::make('no_kontrak_perusahaan')->readOnly()->placeholder('Otomatis dari sistem'),
+            TextInput::make('no_group')->required(),
+            TextInput::make('no_sertifikat')->required(),
+            DatePicker::make('tanggal_sertifikat')->required()->format('d/m/Y')->default(now()),
+            DatePicker::make('tanggal_pengiriman_sertifikat')->required()->format('d/m/Y')->default(now()),
+            DatePicker::make('tanggal_penerbitan_invoice')->required()->format('d/m/Y')->default(now()),
+            DatePicker::make('tanggal_pengiriman_invoice')->required()->format('d/m/Y')->default(now()),
+            DatePicker::make('tanggal_pembayaran')->required()->format('d/m/Y')->default(now()),
+            FileUpload::make('faktur_pajak')
+                ->directory('penerbitan_invoice')
+                ->openable()
+                ->columnSpanFull()
+                ->previewable(true)
+                ->acceptedFileTypes(['application/pdf']),
+            Section::make('Sample Details')
+                ->description('Please double-check all data before submitting to the system!')
+                ->schema([
+                    Repeater::make('letterDetails')
+                        ->label('Detail Nomor Surat')
+                        ->schema([
+                            TextInput::make('letterNumber')
+                                ->label('No surat')
+                                ->required(),
+                            Repeater::make('locationDetails')
+                                ->label('Detail Lokasi')
+                                ->schema([
+                                    TextInput::make('location')
+                                        ->label('Lokasi')
+                                        ->placeholder('Tidak Wajib di isi dapat di kosongkan saja')
+                                        // ->required()
+                                        ->columnSpanFull(),
+                                    Repeater::make('parameterDetails')
+                                        ->label('Detail Parameter')
+                                        ->schema([
+                                            Select::make('sampleType')
+                                                ->label('Jenis Sampel')
+                                                ->options(JenisSampel::query()->where('soft_delete_id', '!=', 1)->pluck('nama', 'id'))
+                                                ->required()
+                                                ->live(debounce: 500),
+                                            Select::make('parameter')
+                                                ->label('Parameter')
+                                                ->options(fn(Get $get) => ParameterAnalisis::where('id_jenis_sampel', $get('sampleType'))->pluck('nama_parameter', 'id')->toArray())
+                                                ->afterStateUpdated(function ($set, $state) {
+                                                    $params = ParameterAnalisis::find($state);
+                                                    $set('parameterData', $params->nama_unsur);
+                                                    $set('samplePrice', $params->harga);
+                                                    $set('totalPrice', $params->harga);
+                                                })
+                                                ->required()
+                                                ->disableOptionsWhenSelectedInSiblingRepeaterItems()
+                                                ->live(debounce: 500),
+                                            TextInput::make('sampleCount')
+                                                ->label('Jumlah Sampel')
+                                                ->numeric()
+                                                ->required()
+                                                ->minValue(1)
+                                                ->maxValue(1000)
+                                                ->disabled(fn($get) => is_null($get('parameterData')))
+                                                ->afterStateUpdated(function (Get $get, Set $set) {
+                                                    InvoiceHelper::updateTotals($get, $set);
+                                                })
+                                                ->live(debounce: 500),
+                                            TextInput::make('parameterData')
+                                                ->label('Parameter Data')
+                                                ->readOnly()
+                                                ->disabled(fn($get) => is_null($get('parameterData'))),
+                                            TextInput::make('samplePrice')
+                                                ->label('Harga')
+                                                ->disabled(fn($get) => is_null($get('parameterData')))
+                                                ->readOnly(),
+                                            TextInput::make('subtotal')
+                                                ->label('Subtotal')
+                                                ->readOnly()
+                                                ->afterStateHydrated(function (Get $get, Set $set) {
+                                                    InvoiceHelper::updateTotals($get, $set);
+                                                })
+                                                ->disabled(fn($get) => is_null($get('parameterData')))
+                                        ])
+                                        ->addActionLabel('Tambah Parameter baru')
+                                        ->columnSpanFull()
+                                ])
+                                ->addActionLabel('Tambah Lokasi baru')
+                                ->columnSpanFull()
+                        ])
+                        ->addActionLabel('Tambah Nomor surat baru')
+                        ->columnSpanFull()
+                        ->afterStateUpdated(function (Get $get, Set $set) {
+                            InvoiceHelper::updateTotalharga($get, $set);
+                        })
+                ])
+                ->afterStateUpdated(function (Get $get, Set $set) {
+                    InvoiceHelper::updateTotalharga($get, $set);
+                })
+                ->live(debounce: 500)
+                ->columnSpanFull(),
+            TextInput::make('discount_percentage')
+                ->label('Discount Percentage')
+                ->numeric()
+                ->required()
+                ->minValue(0)
+                ->maxValue(100)
+                ->placeholder('Enter discount percentage (0-100%)')
+                ->live(debounce: 500)
+                ->afterStateUpdated(function (Get $get, Set $set) {
+                    InvoiceHelper::updateTotalharga($get, $set);
+                    if ($get('totalharga_disc') > 1000000) {
+                        Notification::make()
+                            ->title('E-materai diperlukan')
+                            ->body('Total harga melebihi 1 juta, harap unggah e-materai')
+                            ->danger()
+                            ->send();
+                    }
+                }),
+            TextInput::make('pembayaran')->required()
+                ->live(debounce: 500)
+                ->placeholder('Harap diisi untuk mengupdate total harga')
+                ->afterStateUpdated(function (Get $get, Set $set) {
+                    InvoiceHelper::updateTotalharga($get, $set);
+                }),
+            TextInput::make('totalharga')->label('Total Harga')->readOnly()->placeholder('Otomatis'),
+            TextInput::make('totalharga_disc')->label('Total Harga + Diskon')->readOnly()->placeholder('Otomatis'),
+            FileUpload::make('e_materai')
+                ->image()
+                ->imageEditor()
+                ->required(fn(Get $get) => $get('e_matare_status') ? false : true)
+                ->columnSpanFull()
+                ->hidden(fn(Get $get) => ($get('totalharga_disc') > 1000000) ? false : true),
+            Toggle::make('e_matare_status')
+                ->label('Tambahkan E-materai nanti')
+                ->live(debounce: 500)
+                ->hidden(fn(Get $get) => ($get('totalharga_disc') > 1000000) ? false : true),
+        ];
+    }
+}
+
+if (!function_exists('can_edit_invoice')) {
+    function can_edit_invoice()
+    {
+        // dd(auth()->user()->id_departement);
+        if (auth()->user()->id_departement != 45) {
+            return false;
+        }
+        return true;
     }
 }
 // $integer = 6;

@@ -43,21 +43,21 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->collapsibleNavigationGroups(true)
             ->brandLogo(asset('images/CBI-logo.png'))
-            ->brandLogoHeight('4rem')
+            ->brandLogoHeight('3rem')
             ->favicon(asset('images/CBI-logo.png'))
             ->brandName('Marcom Apps')
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->discoverClusters(in: app_path('Filament/Clusters'), for: 'App\\Filament\\Clusters')
-            ->pages([
-                // Pages\Dashboard::class,
-                // Testing::class,
-                // Testing2::class,
-            ])
-            ->widgets([
-                Tracksampel::class,
-                Inputdataform::class
-            ])
+            // ->pages([
+            //     // Pages\Dashboard::class,
+            //     // Testing::class,
+            //     // Testing2::class,
+            // ])
+            // ->widgets([
+            //     Tracksampel::class,
+            //     Inputdataform::class
+            // ])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
