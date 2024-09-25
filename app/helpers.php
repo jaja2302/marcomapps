@@ -395,12 +395,12 @@ if (!function_exists('form_invoice')) {
             TextInput::make('no_kontrak_perusahaan')->readOnly()->placeholder('Otomatis dari sistem'),
             TextInput::make('status_pajak')->readOnly()->placeholder('Otomatis dari sistem'),
             TextInput::make('no_group')->required(),
-            TextInput::make('no_sertifikat')->required(),
+            TextInput::make('no_sertifikat'),
             DatePicker::make('tanggal_sertifikat')->required()->format('d/m/Y')->default(now()),
-            DatePicker::make('tanggal_pengiriman_sertifikat')->required()->format('d/m/Y')->default(now()),
+            DatePicker::make('tanggal_pengiriman_sertifikat')->format('d/m/Y'),
             DatePicker::make('tanggal_penerbitan_invoice')->required()->format('d/m/Y')->default(now()),
             DatePicker::make('tanggal_pengiriman_invoice')->required()->format('d/m/Y')->default(now()),
-            DatePicker::make('tanggal_pembayaran')->required()->format('d/m/Y')->default(now()),
+            DatePicker::make('tanggal_pembayaran')->format('d/m/Y'),
             DatePicker::make('tanggal_kontrak')->required()->format('d/m/Y')->default(now()),
             FileUpload::make('faktur_pajak')
                 ->directory('penerbitan_invoice')
