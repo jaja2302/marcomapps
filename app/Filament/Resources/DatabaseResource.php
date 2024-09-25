@@ -147,21 +147,21 @@ class DatabaseResource extends Resource
                         $client = new Client();
                         // dd($record);
                         if ($record->id !== null) {
-                            // Make a GET request to the API with query parameters
-                            $response = $client->get('http://erpda.test/api/invoices_smartlabs', [
-                                'query' => [
-                                    'email' => 'j',
-                                    'password' => 'j',
-                                    'id_data' => $record->id,
-                                ],
-                            ]);
-                            // $response = $client->get('https://management.srs-ssms.com/api/invoices_smartlabs', [
+                            // // Make a GET request to the API with query parameters
+                            // $response = $client->get('http://erpda.test/api/invoices_smartlabs', [
                             //     'query' => [
                             //         'email' => 'j',
                             //         'password' => 'j',
                             //         'id_data' => $record->id,
                             //     ],
                             // ]);
+                            $response = $client->get('https://management.srs-ssms.com/api/invoices_smartlabs', [
+                                'query' => [
+                                    'email' => 'j',
+                                    'password' => 'j',
+                                    'id_data' => $record->id,
+                                ],
+                            ]);
 
                             $responseData = json_decode($response->getBody()->getContents(), true);
 
@@ -207,9 +207,14 @@ class DatabaseResource extends Resource
                             $data['no_kontrak_perusahaan'] = $perusahaan->no_kontrak_perusahaan;
                             $data['letterDetails'] = $resi_data;
                             $data['pembayaran'] = $data['status_pembayaran'];
-                            $data['discount_percentage'] = $resi->discount;
-                            $data['totalharga'] = $resi->total_harga;
+
+                            $data['subtotal'] = $resi->subtotal;
+                            $data['discount_percentage'] = $resi->discount_percentage;
+                            $data['discon'] = $resi->discon;
+                            $data['ppn_percentage'] = $resi->ppn_percentage;
+                            $data['ppn'] = $resi->ppn;
                             $data['totalharga_disc'] = $resi->totalharga_disc;
+                            $data['totalharga_ppn_disc'] = $resi->totalharga_ppn_disc;
 
                             return $data;
                         })
@@ -236,9 +241,13 @@ class DatabaseResource extends Resource
                                 // Update Detailresi related data
                                 Detailresi::where('resi_id', $record->resi_pengiriman)->update([
                                     'data' => json_encode($data['letterDetails'] ?? []),
-                                    'discount' => $data['discount_percentage'] ?? 0,
-                                    'total_harga' => $data['totalharga'] ?? 0,
+                                    'subtotal' => $data['subtotal'] ?? 0,
+                                    'discon' => $data['discon'] ?? 0,
+                                    'discount_percentage' => $data['discount_percentage'] ?? 0,
+                                    'ppn_percentage' => $data['ppn_percentage'] ?? 0,
+                                    'ppn' => $data['ppn'] ?? 0,
                                     'totalharga_disc' => $data['totalharga_disc'] ?? 0,
+                                    'totalharga_ppn_disc' => $data['totalharga_ppn_disc'] ?? 0,
                                 ]);
 
                                 return $record; // Optionally return the updated record

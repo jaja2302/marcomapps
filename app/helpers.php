@@ -264,14 +264,25 @@ class InvoiceHelper
             }
         }
         $total_disc = $total;
+        $discon = 0;
         $discountPercentage = $get('discount_percentage');
         if ($discountPercentage != null) {
             $total_disc = $total - ($total * ($discountPercentage / 100));
+            $discon = $total * ($discountPercentage / 100);
         }
-
+        $ppn_Percentage = $get('ppn_percentage');
+        $ppn = 0;
+        // dd($ppn_Percentage);
+        if ($ppn_Percentage != null) {
+            $total_disc_ppn = $total_disc + ($total_disc * ($ppn_Percentage / 100));
+            $ppn = $total_disc * ($ppn_Percentage / 100);
+        }
         // Set updated values
         $set('totalharga_disc', $total_disc);
-        $set('totalharga', $total);
+        $set('totalharga_ppn_disc', $total_disc_ppn);
+        $set('ppn', $ppn);
+        $set('discon', $discon);
+        $set('subtotal', $total);
     }
 
     public static function updateTotals(Get $get, Set $set): void
@@ -478,42 +489,74 @@ if (!function_exists('form_invoice')) {
                 })
                 ->live(debounce: 500)
                 ->columnSpanFull(),
-            TextInput::make('discount_percentage')
-                ->label('Discount Percentage')
-                ->numeric()
-                ->required()
-                ->minValue(0)
-                ->maxValue(100)
-                ->placeholder('Enter discount percentage (0-100%)')
-                ->live(debounce: 500)
+            TextInput::make('pembayaran')->required()
+                ->live(debounce: 300)
+                ->columnSpanFull()
+                ->placeholder('Harap diisi untuk mengupdate total harga')
                 ->afterStateUpdated(function (Get $get, Set $set) {
                     InvoiceHelper::updateTotalharga($get, $set);
-                    if ($get('totalharga_disc') > 1000000) {
+                    if ($get('totalharga_disc') > 5000000) {
                         Notification::make()
                             ->title('E-materai diperlukan')
-                            ->body('Total harga melebihi 1 juta, harap unggah e-materai')
+                            ->body('Total harga melebihi 5 juta, harap unggah e-materai')
                             ->danger()
                             ->send();
                     }
                 }),
-            TextInput::make('pembayaran')->required()
-                ->live(debounce: 500)
-                ->placeholder('Harap diisi untuk mengupdate total harga')
-                ->afterStateUpdated(function (Get $get, Set $set) {
-                    InvoiceHelper::updateTotalharga($get, $set);
-                }),
-            TextInput::make('totalharga')->label('Total Harga')->readOnly()->placeholder('Otomatis'),
-            TextInput::make('totalharga_disc')->label('Total Harga + Diskon')->readOnly()->placeholder('Otomatis'),
+            Section::make('Kalkulasi Harga')
+                ->description('Diskon, PPN, dan Total Harga')
+                ->schema([
+                    TextInput::make('subtotal')->label('Sub total')->readOnly()->placeholder('Otomatis')->columnSpanFull(),
+                    TextInput::make('discount_percentage')
+                        ->label('Diskon Percentage')
+                        ->suffix('%')
+                        ->numeric()
+                        ->required()
+                        ->minValue(0)
+                        ->default(0)
+                        ->placeholder('Enter diskon (0-100%)')
+                        ->live(debounce: 500)
+                        ->afterStateUpdated(function (Get $get, Set $set) {
+                            InvoiceHelper::updateTotalharga($get, $set);
+                        }),
+                    TextInput::make('discon')->label('Diskon')->readOnly()->placeholder('Otomatis')->required(),
+                    TextInput::make('ppn_percentage')
+                        ->label('PPN Percentage')
+                        ->numeric()
+                        ->required()
+                        ->minValue(0)
+                        ->default(11)
+                        ->suffix('%')
+                        ->placeholder('Enter PPN  (0-100%)')
+                        ->live(debounce: 500)
+                        ->afterStateUpdated(function (Get $get, Set $set) {
+                            InvoiceHelper::updateTotalharga($get, $set);
+                        }),
+                    TextInput::make('ppn')
+                        ->label('PPN')
+                        ->numeric()
+                        ->required()
+                        ->readOnly()
+                        ->placeholder('Otomatis')
+                        ->minValue(0),
+
+                    TextInput::make('totalharga_disc')->label('Total Harga + Diskon')->readOnly()->placeholder('Otomatis'),
+                    TextInput::make('totalharga_ppn_disc')->label('Total Harga + ppn')->readOnly()->placeholder('Otomatis'),
+
+                ])
+                ->columns(2)
+                ->disabled(fn(Get $get) => $get('pembayaran') == null),
             FileUpload::make('e_materai')
                 ->image()
                 ->imageEditor()
                 ->required(fn(Get $get) => $get('e_matare_status') ? false : true)
                 ->columnSpanFull()
-                ->hidden(fn(Get $get) => ($get('totalharga_disc') > 1000000) ? false : true),
+                ->hidden(fn(Get $get) => ($get('totalharga_disc') > 5000000) ? false : true),
             Toggle::make('e_matare_status')
                 ->label('Tambahkan E-materai nanti')
                 ->live(debounce: 500)
-                ->hidden(fn(Get $get) => ($get('totalharga_disc') > 1000000) ? false : true),
+                ->hidden(fn(Get $get) => ($get('totalharga_disc') > 5000000) ? false : true),
+
         ];
     }
 }

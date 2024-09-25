@@ -49,9 +49,13 @@ class CreateDatabase extends CreateRecord
             Detailresi::create([
                 'resi_id' => $query->resi_pengiriman,
                 'data' => json_encode($data['letterDetails']),
-                'discount' => $data['discount_percentage'],
-                'total_harga' => $data['totalharga'],
-                'totalharga_disc' => $data['totalharga_disc'],
+                'subtotal' => $data['subtotal'] ?? 0,
+                'discon' => $data['discon'] ?? 0,
+                'discount_percentage' => $data['discount_percentage'] ?? 0,
+                'ppn_percentage' => $data['ppn_percentage'] ?? 0,
+                'ppn' => $data['ppn'] ?? 0,
+                'totalharga_disc' => $data['totalharga_disc'] ?? 0,
+                'totalharga_ppn_disc' => $data['totalharga_ppn_disc'] ?? 0,
             ]);
             return $query; // Return the created model
         });
