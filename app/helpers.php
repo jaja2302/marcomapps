@@ -549,6 +549,9 @@ if (!function_exists('form_invoice')) {
             FileUpload::make('e_materai')
                 ->image()
                 ->imageEditor()
+                ->disk('local')  // storage/app
+                ->directory('emeterai_path')  // storage/app/uploaded-csv
+                ->visibility('private')
                 ->required(fn(Get $get) => $get('e_matare_status') ? false : true)
                 ->columnSpanFull()
                 ->hidden(fn(Get $get) => ($get('totalharga_disc') > 5000000) ? false : true),
