@@ -17,11 +17,6 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use App\Filament\Widgets\Inputdataform;
-use App\Filament\Widgets\Tracksampel;
-use App\Filament\Pages\Testing;
-use App\Filament\Pages\Testing2;
-use Filament\Navigation\NavigationGroup;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -54,10 +49,6 @@ class AdminPanelProvider extends PanelProvider
             //     // Testing::class,
             //     // Testing2::class,
             // ])
-            // ->widgets([
-            //     Tracksampel::class,
-            //     Inputdataform::class
-            // ])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
@@ -69,6 +60,8 @@ class AdminPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
+            ->databaseNotifications()
+            ->databaseNotificationsPolling('2s')
             ->authMiddleware([
                 Authenticate::class,
             ]);

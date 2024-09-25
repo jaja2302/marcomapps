@@ -5,14 +5,14 @@ namespace App\Filament\Resources\DatabaseResource\Pages;
 use App\Filament\Resources\DatabaseResource;
 use App\Models\Databaseinvoice;
 use App\Models\Detailresi;
+use App\Notifications\InvoiceCreate;
 use Carbon\Carbon;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
-use Filament\Notifications\Actions\Action;
-use Filament\Forms\Components\FileUpload;
+use Filament\Notifications\Events\DatabaseNotificationsSent;
 
 class CreateDatabase extends CreateRecord
 {
@@ -57,7 +57,14 @@ class CreateDatabase extends CreateRecord
                 'totalharga_disc' => $data['totalharga_disc'] ?? 0,
                 'totalharga_ppn_disc' => $data['totalharga_ppn_disc'] ?? 0,
             ]);
-            return $query; // Return the created model
+            $recipient = auth()->user();
+
+            Notification::make()
+                ->title('Invoice baru')
+                ->body('Invoice baru ditambahkan oleh ' . $recipient->nama_lengkap)
+                ->sendToDatabase($recipient);
+            event(new DatabaseNotificationsSent($recipient));
+            return $query;
         });
     }
 

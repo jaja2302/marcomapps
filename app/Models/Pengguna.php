@@ -14,4 +14,9 @@ class Pengguna extends Authenticatable
     protected $table = 'pengguna';
     protected $primaryKey = 'user_id';
     public $timestamps = false;
+    protected $fillable = ['email'];
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class, 'notifiable_id', 'user_id');
+    }
 }
