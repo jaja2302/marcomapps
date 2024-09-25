@@ -5,6 +5,7 @@ namespace App\Filament\Resources\DatabaseResource\Pages;
 use App\Filament\Resources\DatabaseResource;
 use App\Models\Databaseinvoice;
 use App\Models\Detailresi;
+use App\Models\Pengguna;
 use App\Notifications\InvoiceCreate;
 use Carbon\Carbon;
 use Filament\Notifications\Notification;
@@ -57,13 +58,17 @@ class CreateDatabase extends CreateRecord
                 'totalharga_disc' => $data['totalharga_disc'] ?? 0,
                 'totalharga_ppn_disc' => $data['totalharga_ppn_disc'] ?? 0,
             ]);
-            $recipient = auth()->user();
+            $recipients = Pengguna::where('id_departement', 45)->get();
 
-            Notification::make()
-                ->title('Invoice baru')
-                ->body('Invoice baru ditambahkan oleh ' . $recipient->nama_lengkap)
-                ->sendToDatabase($recipient);
-            event(new DatabaseNotificationsSent($recipient));
+            foreach ($recipients as $recipient) {
+                Notification::make()
+                    ->title('Invoice baru')
+                    ->body('Invoice baru ditambahkan oleh ' . auth()->user()->nama_lengkap)
+                    ->sendToDatabase($recipient);
+            }
+
+            event(new DatabaseNotificationsSent(auth()->user()));
+
             return $query;
         });
     }

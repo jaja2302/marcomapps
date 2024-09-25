@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\DatabaseResource\Pages;
 use App\Models\Databaseinvoice;
 use App\Models\Detailresi;
+use App\Models\Pengguna;
 use App\Models\Perusahaan;
 use Carbon\Carbon;
 use Filament\Forms\Form;
@@ -26,9 +27,11 @@ use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Support\Facades\DB;
 use Filament\Forms\Components\DatePicker;
+use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Filters\Filter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Enums\FiltersLayout;
+use Illuminate\Support\Collection;
 
 class DatabaseResource extends Resource
 {
@@ -117,7 +120,44 @@ class DatabaseResource extends Resource
                     ->size(IconColumn\IconColumnSize::Medium),
             ])
             ->bulkActions([
-                DeleteBulkAction::make()->visible(can_edit_invoice()),
+                BulkAction::make('delete')
+                    ->requiresConfirmation()
+                    ->label('Hapus Invoice')
+                    ->icon('heroicon-m-trash')
+                    ->visible(can_edit_invoice())
+                    ->color('danger')
+                    ->deselectRecordsAfterCompletion()
+                    ->action(function (Collection $records) {
+                        // Collect all resi_pengiriman values into an array
+                        $resiPengirimanList = $records->pluck('resi_pengiriman')->toArray();
+
+                        // Delete all records and send success notification to the user who initiated the action
+                        $records->each(function (Databaseinvoice $record) {
+                            $record->delete();
+                        });
+
+                        Notification::make()
+                            ->title("Berhasil di Hapus")
+                            ->body("Invoice berhasil dihapus")
+                            ->success()
+                            ->send();
+
+                        // Get all the recipients (users in department 45)
+                        $recipients = Pengguna::where('id_departement', 45)->get();
+
+                        // Build the notification body with all resi_pengiriman
+                        $resiString = implode(', ', $resiPengirimanList); // Convert array to a comma-separated string
+                        $bodyMessage = 'Invoices dengan resi pengiriman berikut telah di hapus: ' . $resiString;
+
+                        // Send notification to all recipients
+                        foreach ($recipients as $recipient) {
+                            Notification::make()
+                                ->title('Invoice terhapus')
+                                ->body($bodyMessage . ' by ' . auth()->user()->nama_lengkap)
+                                ->sendToDatabase($recipient);
+                        }
+                    }),
+
             ])
             ->filters([
                 SelectFilter::make('nama_perusahaan')
@@ -268,6 +308,14 @@ class DatabaseResource extends Resource
                                 ->title("Berhasil di Hapus")
                                 ->success()
                                 ->send();
+                            $recipients = Pengguna::where('id_departement', 45)->get();
+
+                            foreach ($recipients as $recipient) {
+                                Notification::make()
+                                    ->title('Invoice terhapus')
+                                    ->body('Invoice dengan resi ' . $record->resi_pengiriman . ' dihapus oleh ' . auth()->user()->nama_lengkap)
+                                    ->sendToDatabase($recipient);
+                            }
                         })
                         ->visible(can_edit_invoice())
                         ->deselectRecordsAfterCompletion()

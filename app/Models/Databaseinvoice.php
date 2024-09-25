@@ -8,7 +8,7 @@ use Illuminate\Notifications\Notifiable;
 use App\Observers\InvoiceObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 
-#[ObservedBy([InvoiceObserver::class])]
+// #[ObservedBy([InvoiceObserver::class])]
 class Databaseinvoice extends Model
 {
     use HasFactory, Notifiable;
