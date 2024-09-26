@@ -4,9 +4,11 @@ use App\Models\JenisSampel;
 use App\Models\ParameterAnalisis;
 use App\Models\Perusahaan;
 use Filament\Forms;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
@@ -408,6 +410,25 @@ if (!function_exists('form_invoice')) {
                 ->columnSpanFull()
                 ->previewable(true)
                 ->acceptedFileTypes(['application/pdf']),
+            Radio::make('version')
+                ->label('Invoice Version')
+                ->options([
+                    '1' => 'Satu',
+                    '2' => 'Dua',
+                    '3' => 'Tiga'
+                ])
+                ->required()
+                ->live()
+                ->afterStateUpdated(function (Set $set, $state) {
+                    $set('version_data', $state);
+                })
+                // ->inlineLabel(false)
+                // ->inline()
+                ->descriptions([
+                    '1' => 'PDF Invoice menampilkan nomor surat dan alamat setiap sub parameter',
+                    '2' => 'PDF Invoice hanya menampilkan list parameter',
+                    '3' => 'PDF Invoice menampilkan sub judul contoh "Pembayaran Tahap II"'
+                ]),
             Section::make('Sample Details')
                 ->description('Please double-check all data before submitting to the system!')
                 ->schema([
@@ -418,11 +439,12 @@ if (!function_exists('form_invoice')) {
                                 ->label('No surat')
                                 ->required(),
                             Repeater::make('locationDetails')
-                                ->label('Detail Lokasi')
+                                ->label('Detail')
                                 ->schema([
                                     TextInput::make('location')
-                                        ->label('Lokasi')
-                                        ->placeholder('Tidak Wajib di isi dapat di kosongkan saja')
+                                        ->hidden(fn(Get $get) => $get('../../../../version_data') == 2)
+                                        ->label(fn(Get $get) => $get('../../../../version_data') == 1 ? 'Lokasi' : 'Sub Judul')
+                                        ->placeholder('Wajib di isi jika menyertai lokasi atau sub judul, jika tidak kosongkan saja.')
                                         // ->required()
                                         ->columnSpanFull(),
                                     Repeater::make('parameterDetails')

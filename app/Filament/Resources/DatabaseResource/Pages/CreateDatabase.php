@@ -30,6 +30,7 @@ class CreateDatabase extends CreateRecord
             // dd($data);
             $query = Databaseinvoice::create([
                 'perusahaan_id' => $data['nama_perusahaan'],
+                'version' => $data['version'],
                 'no_group' => $data['no_group'],
                 'tanggal_sertifikat' => Carbon::createFromFormat('d/m/Y', $data['tanggal_sertifikat'])->format('Y-m-d H:i:s'),
                 'tanggal_pengiriman_sertifikat' => $data['tanggal_pengiriman_sertifikat'] ? Carbon::createFromFormat('d/m/Y', $data['tanggal_pengiriman_sertifikat'])->format('Y-m-d H:i:s') : null,

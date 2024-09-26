@@ -193,6 +193,7 @@ class DatabaseResource extends Resource
                             //         'email' => 'j',
                             //         'password' => 'j',
                             //         'id_data' => $record->id,
+                            //         'version' => $record->version,
                             //     ],
                             // ]);
                             $response = $client->get('https://management.srs-ssms.com/api/invoices_smartlabs', [
@@ -200,6 +201,7 @@ class DatabaseResource extends Resource
                                     'email' => 'j',
                                     'password' => 'j',
                                     'id_data' => $record->id,
+                                    'version' => $record->version,
                                 ],
                             ]);
 
@@ -264,6 +266,7 @@ class DatabaseResource extends Resource
                                 Databaseinvoice::where('id', $record->id)->update([
                                     'perusahaan_id' => $data['nama_perusahaan'] ?? null,
                                     'no_group' => $data['no_group'] ?? null,
+                                    'version' => $data['version'] ?? null,
                                     'tanggal_sertifikat' => Carbon::createFromFormat('d/m/Y', $data['tanggal_sertifikat'])->format('Y-m-d H:i:s'),
                                     'tanggal_pengiriman_sertifikat' => $data['tanggal_pengiriman_sertifikat'] ? Carbon::createFromFormat('d/m/Y', $data['tanggal_pengiriman_sertifikat'])->format('Y-m-d H:i:s') : null,
                                     'no_sertifikat' => $data['no_sertifikat'],
