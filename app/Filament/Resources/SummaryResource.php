@@ -6,6 +6,7 @@ use App\Filament\Resources\SummaryResource\Pages;
 use App\Filament\Resources\SummaryResource\RelationManagers;
 use App\Filament\Resources\SummaryResource\Widgets\GraphSummary;
 use App\Filament\Resources\SummaryResource\Widgets\IncomeSummaryWidget;
+use App\Filament\Resources\SummaryResource\Widgets\OutstandingPayments;
 use App\Filament\Resources\SummaryResource\Widgets\SampleTypeDistributionWidget;
 use App\Models\Detailresi;
 use App\Models\Summary;
@@ -60,6 +61,7 @@ class SummaryResource extends Resource
     public static function getWidgets(): array
     {
         return [
+            OutstandingPayments::class,
             GraphSummary::class,
             SampleTypeDistributionWidget::class,
             IncomeSummaryWidget::class,
@@ -71,7 +73,7 @@ class SummaryResource extends Resource
             // 'index' => Pages\ListSummaries::route('/'),
             'create' => Pages\CreateSummary::route('/create'),
             'edit' => Pages\EditSummary::route('/{record}/edit'),
-            'sort' => Pages\Testing::route('/sort'),
+            'index' => Pages\SummaryGraph::route('/'),
         ];
     }
 }

@@ -3,23 +3,17 @@
 namespace App\Filament\Resources\SummaryResource\Pages;
 
 use App\Filament\Resources\SummaryResource;
+use Filament\Resources\Pages\Page;
 use App\Filament\Resources\SummaryResource\Widgets\GraphSummary;
 use App\Filament\Resources\SummaryResource\Widgets\IncomeSummaryWidget;
+use App\Filament\Resources\SummaryResource\Widgets\OutstandingPayments;
 use App\Filament\Resources\SummaryResource\Widgets\SampleTypeDistributionWidget;
-use Filament\Actions;
-use Filament\Resources\Pages\ListRecords;
 
-class ListSummaries extends ListRecords
+class SummaryGraph extends Page
 {
     protected static string $resource = SummaryResource::class;
 
-
-    protected function getHeaderActions(): array
-    {
-        return [
-            Actions\CreateAction::make(),
-        ];
-    }
+    protected static string $view = 'filament.resources.summary-resource.pages.summary-graph';
 
     public function getFooterWidgetsColumns(): int | array
     {
@@ -29,6 +23,7 @@ class ListSummaries extends ListRecords
     protected function getFooterWidgets(): array
     {
         return [
+            OutstandingPayments::class,
             GraphSummary::class,
             SampleTypeDistributionWidget::class,
             IncomeSummaryWidget::class,
