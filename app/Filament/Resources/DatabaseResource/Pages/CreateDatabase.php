@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\DatabaseResource\Pages;
 
+use App\Events\Marcomnotification;
 use App\Filament\Resources\DatabaseResource;
 use App\Models\Databaseinvoice;
 use App\Models\Detailresi;
@@ -67,8 +68,13 @@ class CreateDatabase extends CreateRecord
                     ->body('Invoice baru ditambahkan oleh ' . auth()->user()->nama_lengkap)
                     ->sendToDatabase($recipient);
             }
-
-            event(new DatabaseNotificationsSent(auth()->user()));
+            $bot_data = [
+                'invoice_id' => $query->id,
+                'resi_id' => $query->resi_pengiriman,
+                'version' => $query->version,
+                'created_by' => auth()->user()->nama_lengkap,
+            ];
+            event(new Marcomnotification($bot_data));
 
             return $query;
         });
