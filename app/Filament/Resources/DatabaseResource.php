@@ -60,6 +60,7 @@ class DatabaseResource extends Resource
     {
         return $table
             ->query(Databaseinvoice::query())
+            ->defaultSort('id', 'desc')
             ->columns([
                 TextColumn::make('Perusahaan.nama')
                     ->sortable()
@@ -206,7 +207,7 @@ class DatabaseResource extends Resource
                             ]);
 
                             $responseData = json_decode($response->getBody()->getContents(), true);
-
+                            // dd($response);
                             if (isset($responseData['pdf'])) {
                                 // Decode the base64 PDF
                                 $pdfContent = base64_decode($responseData['pdf']);

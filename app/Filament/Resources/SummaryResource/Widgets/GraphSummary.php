@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 class GraphSummary extends ChartWidget
 {
     protected static ?string $heading = 'Total Revenue Summary';
+
     public ?string $filter = 'week';
 
     protected function getData(): array
