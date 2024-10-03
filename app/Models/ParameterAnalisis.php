@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class ParameterAnalisis extends Model
 {
     use HasFactory;
-    protected $connection = 'mysql3';
+    // protected $connection = 'mysql3';
     protected $table = 'parameter_analisis';
     protected $guarded = ['id'];
     public $timestamps = false;
