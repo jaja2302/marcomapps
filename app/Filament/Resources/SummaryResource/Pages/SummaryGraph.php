@@ -18,19 +18,31 @@ class SummaryGraph extends Page
     protected static ?string $title = 'Summary';
     public function getFooterWidgetsColumns(): int | array
     {
-        return 2;
+        return 1;
     }
     public function getMaxContentWidth(): MaxWidth
     {
         return MaxWidth::Full;
     }
+
+    public function getHeaderWidgetsColumns(): int|string|array
+    {
+        return 2;
+    }
     protected function getFooterWidgets(): array
     {
         return [
+            IncomeSummaryWidget::class,
+        ];
+    }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [
             OutstandingPayments::class,
+
             GraphSummary::class,
             SampleTypeDistributionWidget::class,
-            IncomeSummaryWidget::class,
         ];
     }
 }

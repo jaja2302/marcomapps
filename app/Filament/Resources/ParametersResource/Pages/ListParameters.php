@@ -118,8 +118,6 @@ class ListParameters extends ListRecords
                         ])
                         ->addActionLabel('Add Parameter')
                         ->columns(4)
-
-
                 ])
                 ->visible(can_edit_invoice())
                 ->action(function (array $data, string $model): ParameterAnalisis {
